@@ -193,7 +193,7 @@ class birthday_handling(commands.Cog):
                     await self.wish_sender(to_wish)
             except Exception:
                 pass
-            await asyncio.sleep(900)
+            await asyncio.sleep(600)
 
 
 async def setup(bot: commands.Bot):

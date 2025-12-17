@@ -86,7 +86,7 @@ class help_command(commands.Cog):
             "- Therefore, the bot gives you the option to set a timezone for your (or somebody else's) birthday.\n"
             "- This is done by entering your timezone in the IANA format.\n"
             "- This **usually** takes the from of Continent/CapitalCity, but it can vary.\n"
-            "- If you're unsure about your IANA timezone code, you can check it out here: https://datetime.app/iana-timezones",
+            "- If you're unsure about your IANA timezone code, you can find it in the 'timezone' section at https://webbrowsertools.com/timezone/.",
             color=interaction.user.colour
         )
         timezone_info.set_footer(text="Page 3 of 4")

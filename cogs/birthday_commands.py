@@ -66,9 +66,9 @@ class birthday_commands(commands.Cog):
     @birthday_group.command(name="add", description="Add your birthday to the database")
     @app_commands.checks.cooldown(rate=1, per=15, key = lambda i: i.user.id)
     @app_commands.describe(
-        day="Their birthday day (1-31)",
-        month="Their birthday month (1-12)",
-        timezone="Their IANA timezone (e.g. 'America/New_York')",
+        day="Your birthday day (1-31)",
+        month="Your birthday month (1-12)",
+        timezone="Your IANA timezone (e.g. 'America/New_York')",
     )
     @app_commands.autocomplete(timezone = timezone_autocomplete)
     @app_commands.autocomplete(month = month_autocomplete)
@@ -85,7 +85,7 @@ class birthday_commands(commands.Cog):
         except Exception:
             invalid_timezone_embed = discord.Embed(title=f"{alert_emoji} That's not a timezone...", 
                 description="Invalid timezone. Please select one from the autocomplete list.\n"
-                "You can find the IANA code at https://datetime.app/iana-timezones",
+                "You can find your IANA timezone code in the 'Timezone' section at https://webbrowsertools.com/timezone/.",
                 colour=discord.Colour.red())
             await interaction.followup.send(embed=invalid_timezone_embed)
             return
@@ -144,7 +144,7 @@ class birthday_commands(commands.Cog):
                 now_ts  = dt.datetime.now(dt.timezone.utc).timestamp()
                 timezone_confirmation_embed=discord.Embed(title="Get wished at midnight UTC?",
                     description=f"{alert_emoji} You will be wished at around midnight UTC on the day of your birthday.\n"
-                    "If you would like to be wished in your local timezone, find its IANA code at https://datetime.app/iana-timezones and enter it in the command's 'timezone' field.\n"
+                    "If you would like to be wished around midnight in your own timezone, find your timezone's IANA code in the 'timezone' section in https://webbrowsertools.com/timezone/ and enter it in the command's 'timezone' field.\n"
                     "If you would like to proceed with UTC, press confirm.\n"
                     f"-# This interaction will time out <t:{int(now_ts+45)}:R>",
                     colour=interaction.user.colour)
