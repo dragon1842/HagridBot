@@ -2,7 +2,6 @@ import aiosqlite, discord, asyncio
 from discord.ext import commands
 from datetime import datetime, timezone
 import numpy as np
-from pathlib import Path
 from zoneinfo import ZoneInfo
 from .wish_generator import wish_creator
 from .variables import *
@@ -144,7 +143,6 @@ async def checkpoint_wal():
     await db.commit()
 
 
-images_dir = Path(__file__).parent.parent / "images"
 
 class birthday_handling(commands.Cog):
     def __init__(self, bot:commands.Bot):

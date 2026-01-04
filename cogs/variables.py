@@ -1,4 +1,6 @@
 import numpy as np
+import os
+from pathlib import Path
 
 bot_testing = 1068409137605656676
 clock_tower = 825789506019000320
@@ -21,11 +23,8 @@ magical_characters = np.array(["Albus Dumbledore", "Minerva McGonagall", "Oliver
                       "Ginny Weasley", "Dobby", "Neville Longbottom", "Luna Lovegood", "Draco Malfoy", "Peeves",
                       "Nearly-Headless Nick"])
 
-images = np.array(["img1.jpg",
-                   "img2.jpg",
-                   "img3.jpg",
-                   "img4.jpg"])
-
+images_dir = Path(__file__).parent.parent / "images"
+images = np.array(os.listdir(str(images_dir)))
 from discord.ext import commands
 async def setup(bot: commands.bot):
     pass

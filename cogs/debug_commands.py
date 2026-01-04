@@ -1,6 +1,7 @@
 import discord, time
 from discord import app_commands
 from discord.ext import commands
+import random
 from .birthday_handling import *
 from .variables import *
 
@@ -158,7 +159,19 @@ class debug_commands(commands.Cog):
             color=interaction.user.colour
         )
         await interaction.followup.send(embed=ping_embed)
-
+    
+    @debug_group.command(name="test", description="[Bot owner only] Testing various features")
+    @owner_check()
+    async def test_command(self, interaction: discord.Interaction):
+        await interaction.response.defer(ephemeral=True)
+        guild = self.bot.get_guild(guild_id) or await self.bot.fetch_guild(guild_id)
+        for i in images:
+            test_embed = discord.Embed(title=f"Testing embed image {i}", description=f"Random image name = {random.choice(images)}")
+            test_image_path = images_dir / str(i)
+            test_image_file =  discord.File(test_image_path, filename=test_image_path.name)
+            test_embed.set_image(url=f"attachment://{test_image_file.filename}")
+            await interaction.followup.send(file=test_image_file, embed=test_embed)
+            
 
 async def setup(bot: commands.Bot):
     await init_db()
