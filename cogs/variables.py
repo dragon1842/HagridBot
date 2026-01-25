@@ -9,7 +9,7 @@ guild_id = 524552788932558848
 
 professors = 731429277563748412
 
-tairneanach = 876529458880847892
+dragon = 876529458880847892
 
 alert_emoji = "<a:alert:1415015206895091833>"
 approve_tick_emoji = "<a:approve_tick:1415015152427728937>"

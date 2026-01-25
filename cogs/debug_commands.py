@@ -8,7 +8,7 @@ from .variables import *
 
 def owner_check():
     async def predicate(interaction: discord.Interaction):
-        if interaction.user.id == tairneanach:
+        if interaction.user.id == dragon:
             return True
         return False
     return app_commands.check(predicate=predicate)

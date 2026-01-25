@@ -31,7 +31,7 @@ class confirmation_check(discord.ui.View):
 
 def override_access():
     async def predicate(interaction: discord.Interaction):
-        if interaction.user.id == tairneanach:
+        if interaction.user.id == dragon:
             return True
         if interaction.user.id == professors:
             return True
