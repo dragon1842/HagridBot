@@ -69,6 +69,16 @@ class translation_commands(commands.Cog):
             translate_embed.set_footer(text=f"Translated from {initial_language}")
         await interaction.followup.send(embed=translate_embed)
         return
+    
+    @app_commands.command(name="twanswate", description="Twanswate your messages uwu~")
+    @app_commands.checks.cooldown(rate=1, per=15, key=lambda i:i.user.id)
+    @app_commands.describe(text="Entew what you want twanswated~")
+    async def twanswate(self, interaction:discord.Interaction, text:str):
+        await interaction.response.defer(ephemeral=True)
+        twanswate_embed = discord.Embed(title="Baka", description="lol did you really think that was going to work?", colour=interaction.user.colour)
+        twanswate_embed.set_footer(text="use the correct command idiot")
+        await interaction.followup.send(embed=twanswate_embed)
+        return
 
 async def setup(bot: commands.Bot):
     cog = translation_commands(bot)
