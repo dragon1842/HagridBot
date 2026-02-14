@@ -396,7 +396,16 @@ class birthday_commands(commands.Cog):
         celebrator_list = ""
         guild = interaction.guild
         for i in user_ids:
-            birthday_celebrator = (guild.get_member(i) or await guild.fetch_member(i))
+            try:
+                birthday_celebrator = (guild.get_member(i) or await guild.fetch_member(i))
+            except Exception as e:
+                await db.execute("DELETE FROM birthdays WHERE user_id = ?", (i,))
+                await db.commit()
+                guild = interaction.guild
+                testing_channel = guild.get_channel(bot_testing) or await guild.fetch_channel(bot_testing)
+                await testing_channel.send(content=f"User ID {i} was removed for reason:\n{e}")
+                pass
+                
             celebrator_list += f"{birthday_celebrator.mention} ({birthday_celebrator.name})\n"
 
         

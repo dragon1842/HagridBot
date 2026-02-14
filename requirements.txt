@@ -1,7 +1,10 @@
 discord.py
 python-dotenv
 aiosqlite
-openai
+langchain
+langchain-openai
+langchain-tavily
 asyncio
 numpy
 aiohttp
+tzdata
