@@ -17,7 +17,7 @@ system_message = SystemMessage(content="You will be assigned a character from th
             )
 wisher_agent = create_agent(
     model=ChatOpenAI(
-        model="openrouter/auto",
+        model="deepseek/deepseek-v3.2",
         base_url="https://openrouter.ai/api/v1"
     ),
     tools=[search_tool],
