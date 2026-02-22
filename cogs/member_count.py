@@ -11,7 +11,7 @@ class MemberCount(commands.Cog):
     
     async def fetch_and_update_count(self, bot: commands.Bot):
         while True:
-            guild_object = await bot.fetch_guild(self.guild)
+            guild_object = await bot.fetch_guild(self.guild, with_counts=True)
             member_count = guild_object.member_count
             channel = guild_object.get_channel(self.staff_channel) or await guild_object.fetch_channel(self.staff_channel)
             count_embed  = discord.Embed(title="Current Member Count", 
