@@ -83,7 +83,6 @@ class debug_commands(commands.Cog):
                 status_embed.add_field(name="Such empty...",
                                        value=f"{alert_emoji} There have been no birthdays so far this year.",
                                        inline=False)
-                pass
             else:
                 recent_user, recent_day, recent_month = row
                 try:
@@ -99,7 +98,6 @@ class debug_commands(commands.Cog):
                 status_embed.add_field(name="Most recent birthday",
                                        value=f"{recent_user_object.mention} ({recent_user_object.name}) on {recent_day} {self.months_list[recent_month-1]}",
                                        inline=False)
-                pass
         
         async with db.execute("""
                               SELECT user_id, day, month
@@ -114,7 +112,6 @@ class debug_commands(commands.Cog):
                 status_embed.add_field(name="Such empty...",
                                        value=f"{alert_emoji} There are no more birthdays this year.",
                                        inline=False)
-                pass
             else:
                 upcoming_user, upcoming_day, upcoming_month = row
                 try:
@@ -130,7 +127,6 @@ class debug_commands(commands.Cog):
                 status_embed.add_field(name="Closest upcoming birthday",
                                        value=f"{upcoming_user_object.mention} ({upcoming_user_object.name}) on {upcoming_day} {self.months_list[upcoming_month-1]}",
                                        inline=False)
-                pass
         
         async with db.execute("SELECT user_id from birthdays") as cur:
             row = await cur.fetchall()
@@ -138,13 +134,11 @@ class debug_commands(commands.Cog):
                 status_embed.add_field(name="Such empty...",
                                        value=f"{alert_emoji} There are no birthdays stored", 
                                        inline=False)
-                pass
             else:
                 db_size = len(row)
                 status_embed.add_field(name="Database Size",
                                        value=f"There are {db_size} birthdays stored in the database",
                                        inline=False)
-                pass
         await interaction.followup.send(embed=status_embed)
     
 

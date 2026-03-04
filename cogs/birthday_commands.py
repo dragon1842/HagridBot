@@ -300,7 +300,6 @@ class birthday_commands(commands.Cog):
                 status_embed.add_field(name="Such empty...",
                                        value=f"{alert_emoji} There have been no birthdays so far this year.",
                                        inline=False)
-                pass
             else:
                 recent_user, recent_day, recent_month = row
                 try:
@@ -316,7 +315,6 @@ class birthday_commands(commands.Cog):
                 status_embed.add_field(name="Most recent birthday",
                                        value=f"{recent_user_object.mention} ({recent_user_object.name}) on {recent_day} {self.months_list[recent_month-1]}",
                                        inline=False)
-                pass
         
         async with db.execute("""
                               SELECT user_id, day, month
@@ -331,7 +329,6 @@ class birthday_commands(commands.Cog):
                 status_embed.add_field(name="Such empty...",
                                        value=f"{alert_emoji} There are no more birthdays this year.",
                                        inline=False)
-                pass
             else:
                 upcoming_user, upcoming_day, upcoming_month = row
                 try:
@@ -347,7 +344,6 @@ class birthday_commands(commands.Cog):
                 status_embed.add_field(name="Nearest upcoming birthday",
                                        value=f"{upcoming_user_object.mention} ({upcoming_user_object.name}) on {upcoming_day} {self.months_list[upcoming_month-1]}",
                                        inline=False)
-                pass
         await interaction.followup.send(embed=status_embed)
     
 
@@ -404,7 +400,7 @@ class birthday_commands(commands.Cog):
                 guild = interaction.guild
                 testing_channel = guild.get_channel(bot_testing) or await guild.fetch_channel(bot_testing)
                 await testing_channel.send(content=f"User ID {i} was removed for reason:\n{e}")
-                pass
+                continue
                 
             celebrator_list += f"{birthday_celebrator.mention} ({birthday_celebrator.name})\n"
 
