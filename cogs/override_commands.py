@@ -126,6 +126,7 @@ class override_commands(commands.Cog):
         now_ts  = dt.datetime.now(dt.timezone.utc).timestamp()
         confirmation_embed = discord.Embed(title="Are you sure?",
             description=f"{alert_emoji} You are attempting to add a birthday entry for {user.mention} with date: {day}, month: {month}, and timezone: {timezone}. Proceed?\n"
+            "You can verify their IANA timezone code in the at https://datetime.app/iana-timezones\n"
             f"-# This interaction will time out <t:{int(now_ts+45)}:R>", 
             colour = interaction.user.colour)
         await interaction.followup.send(embed=confirmation_embed, view=view)

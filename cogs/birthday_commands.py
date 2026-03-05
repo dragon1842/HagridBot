@@ -118,6 +118,7 @@ class birthday_commands(commands.Cog):
         now_ts  = dt.datetime.now(dt.timezone.utc).timestamp()
         confirmation_embed = discord.Embed(title=f"{alert_emoji} Are you sure?",
             description=f"You are attempting to add a birthday entry for yourself with date: {day}, month: {month}, and timezone: {timezone}. Proceed?\n"
+            "You can verify your IANA timezone code in the 'Timezone' section at https://webbrowsertools.com/timezone/.\n"
             f"-# This interaction will time out <t:{int(now_ts+45)}:R>", 
             colour = interaction.user.colour)
         await interaction.followup.send(embed=confirmation_embed, view=view)

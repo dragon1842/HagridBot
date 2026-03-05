@@ -59,7 +59,7 @@ class translation_commands(commands.Cog):
     @app_commands.describe(text="What you want translated to English")
     async def translate(self, interaction:discord.Interaction, text:str):
         await interaction.response.defer(ephemeral=True)
-        translated_result, initial_language = await self.translate_message(shorten(text=text, width=1024))
+        translated_result, initial_language = await self.translate_message(shorten(text=text, width=512, placeholder="..."))
         translate_embed = discord.Embed(colour=interaction.user.colour)
         translate_embed.add_field(name="Initial message:", value=text, inline=False)
         translate_embed.add_field(name="Translated message:", value=translated_result, inline=False)
