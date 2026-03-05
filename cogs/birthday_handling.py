@@ -153,20 +153,20 @@ class birthday_handling(commands.Cog):
         try:
 
             guild = self.bot.get_guild(guild_id) or await self.bot.fetch_guild(guild_id)
+            channel = guild.get_channel(clock_tower) or await guild.fetch_channel(clock_tower)
 
             for i in to_wish:
                 birthday_member = guild.get_member(i) or await guild.fetch_member(i)
                 avatar_url = birthday_member.avatar.url
 
-                birthday_embed = discord.Embed(title=f"Happy Birthday {birthday_member.name}!", 
-                    description=await wish_creator(), 
+                birthday_embed = discord.Embed(title=f"Happy Birthday {birthday_member.name}!",
+                    description=await wish_creator(),
                     colour=birthday_member.colour)
                 birthday_embed.set_thumbnail(url=avatar_url)
                 birthday_image_selector = np.random.choice(images)
                 birthday_image_path = images_dir / f"{birthday_image_selector}"
                 birthday_image_file = discord.File(birthday_image_path, filename=birthday_image_path.name)
                 birthday_embed.set_image(url=f"attachment://{birthday_image_file.filename}")
-                channel = guild.get_channel(clock_tower) or await guild.fetch_channel(clock_tower)
                 await channel.send(
                     birthday_member.mention,
                     file=birthday_image_file,

@@ -15,6 +15,8 @@ class translation_commands(commands.Cog):
         self.gcp_api_key = os.getenv("gcp_translate_api_key")
 
     async def translate_message (self, message:str):
+        bot_guild = self.bot.get_guild(guild_id) or await self.bot.fetch_guild(guild_id)
+        error_channel = bot_guild.get_channel(bot_testing) or await bot_guild.fetch_channel(bot_testing)
         async with aiohttp.ClientSession() as session:
             async with session.post(url=r"https://translation.googleapis.com/language/translate/v2",
                                     params={"q":message,
@@ -28,11 +30,9 @@ class translation_commands(commands.Cog):
                     trnslted_code = trnslt_data.get("detectedSourceLanguage")
                 else:
                     error_message  =  await response.text()
-                    bot_guild = self.bot.get_guild(guild_id) or await self.bot.fetch_guild(guild_id)
-                    error_channel = bot_guild.get_channel(bot_testing) or await bot_guild.fetch_channel(bot_testing)
                     await error_channel.send(content=f"Google Cloud Platform has raised an exception: {response.status}\t{error_message}")
                     return
-            
+
             async with session.post(url=r"https://translation.googleapis.com/language/translate/v2/languages",
                                     params={"target":"en",
                                             "key":self.gcp_api_key}) as response:
@@ -47,8 +47,6 @@ class translation_commands(commands.Cog):
                         trnslted_lng = None
                 else:
                     error_message  =  await response.text()
-                    bot_guild = self.bot.get_guild(guild_id) or await self.bot.fetch_guild(guild_id)
-                    error_channel = bot_guild.get_channel(bot_testing) or await bot_guild.fetch_channel(bot_testing)
                     await error_channel.send(content=f"Google Cloud Platform has raised an exception: {response.status}\t{error_message}")
                     return
                 

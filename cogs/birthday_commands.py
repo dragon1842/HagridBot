@@ -391,15 +391,14 @@ class birthday_commands(commands.Cog):
         
         user_ids = [row[0] for row in rows]
         celebrator_list = ""
-        guild = interaction.guild
+        guild = self.bot.get_guild(guild_id) or await self.bot.fetch_guild(guild_id)
+        testing_channel = guild.get_channel(bot_testing) or await guild.fetch_channel(bot_testing)
         for i in user_ids:
             try:
                 birthday_celebrator = (guild.get_member(i) or await guild.fetch_member(i))
             except Exception as e:
                 await db.execute("DELETE FROM birthdays WHERE user_id = ?", (i,))
                 await db.commit()
-                guild = interaction.guild
-                testing_channel = guild.get_channel(bot_testing) or await guild.fetch_channel(bot_testing)
                 await testing_channel.send(content=f"User ID {i} was removed for reason:\n{e}")
                 continue
                 
