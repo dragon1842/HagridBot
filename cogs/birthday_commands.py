@@ -33,7 +33,13 @@ class confirmation_check(discord.ui.View):
 class birthday_commands(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+        self.guild = None
+        self.testing_channel = None
         self.months_list=["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+
+    async def cog_load(self):
+        self.guild = await self.bot.fetch_guild(guild_id)
+        self.testing_channel = await self.guild.fetch_channel(bot_testing)
     
     
     async def timezone_autocomplete(self, interaction: discord.Interaction, current: str):
@@ -281,8 +287,7 @@ class birthday_commands(commands.Cog):
     async def nearest_birthdays(self, interaction: discord.Interaction):
         await interaction.response.defer()
         db = await init_db()
-        guild = self.bot.get_guild(guild_id) or await self.bot.fetch_guild(guild_id)
-        status_embed = discord.Embed(title="Nearest birthdays", 
+        status_embed = discord.Embed(title="Nearest birthdays",
                                      description="The nearest (registered) birthdays:",
                                      colour=interaction.user.colour)
         today = datetime.now(timezone.utc)
@@ -304,7 +309,7 @@ class birthday_commands(commands.Cog):
             else:
                 recent_user, recent_day, recent_month = row
                 try:
-                    recent_user_object = guild.get_member(recent_user) or await guild.fetch_member(recent_user)
+                    recent_user_object = self.guild.get_member(recent_user) or await self.guild.fetch_member(recent_user)
                 except Exception as e:
                     await db.execute("DELETE FROM birthdays WHERE user_id = ?", (recent_user,))
                     await db.commit()
@@ -333,7 +338,7 @@ class birthday_commands(commands.Cog):
             else:
                 upcoming_user, upcoming_day, upcoming_month = row
                 try:
-                    upcoming_user_object = guild.get_member(upcoming_user) or await guild.fetch_member(upcoming_user)
+                    upcoming_user_object = self.guild.get_member(upcoming_user) or await self.guild.fetch_member(upcoming_user)
                 except:
                     await db.execute("DELETE FROM birthdays WHERE user_id = ?", (upcoming_user,))
                     await db.commit()
@@ -391,15 +396,13 @@ class birthday_commands(commands.Cog):
         
         user_ids = [row[0] for row in rows]
         celebrator_list = ""
-        guild = self.bot.get_guild(guild_id) or await self.bot.fetch_guild(guild_id)
-        testing_channel = guild.get_channel(bot_testing) or await guild.fetch_channel(bot_testing)
         for i in user_ids:
             try:
-                birthday_celebrator = (guild.get_member(i) or await guild.fetch_member(i))
+                birthday_celebrator = (self.guild.get_member(i) or await self.guild.fetch_member(i))
             except Exception as e:
                 await db.execute("DELETE FROM birthdays WHERE user_id = ?", (i,))
                 await db.commit()
-                await testing_channel.send(content=f"User ID {i} was removed for reason:\n{e}")
+                await self.testing_channel.send(content=f"User ID {i} was removed for reason:\n{e}")
                 continue
                 
             celebrator_list += f"{birthday_celebrator.mention} ({birthday_celebrator.name})\n"
