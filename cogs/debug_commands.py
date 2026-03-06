@@ -17,7 +17,11 @@ def owner_check():
 class debug_commands(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+        self.guild = None
         self.months_list=["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+
+    async def cog_load(self):
+        self.guild = await self.bot.fetch_guild(guild_id)
     
     debug_group = app_commands.Group(name="debug", description="debugging and evaluation commands exclusive to the bot owner.")
 
@@ -62,7 +66,6 @@ class debug_commands(commands.Cog):
     async def db_status(self, interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=True)
         db = await init_db()
-        guild = self.bot.get_guild(guild_id) or await self.bot.fetch_guild(guild_id)
         status_embed = discord.Embed(title="Database status information", 
                                      description="The nearest (registered) birthdays and the size of the database:",
                                      colour=interaction.user.colour)
@@ -85,7 +88,7 @@ class debug_commands(commands.Cog):
             else:
                 recent_user, recent_day, recent_month = row
                 try:
-                    recent_user_object = guild.get_member(recent_user) or await guild.fetch_member(recent_user)
+                    recent_user_object = self.guild.get_member(recent_user) or await self.guild.fetch_member(recent_user)
                 except:
                     await db.execute("DELETE FROM birthdays WHERE user_id = ?", (recent_user,))
                     await db.commit()
@@ -114,7 +117,7 @@ class debug_commands(commands.Cog):
             else:
                 upcoming_user, upcoming_day, upcoming_month = row
                 try:
-                    upcoming_user_object = guild.get_member(upcoming_user) or await guild.fetch_member(upcoming_user)
+                    upcoming_user_object = self.guild.get_member(upcoming_user) or await self.guild.fetch_member(upcoming_user)
                 except:
                     await db.execute("DELETE FROM birthdays WHERE user_id = ?", (upcoming_user,))
                     await db.commit()

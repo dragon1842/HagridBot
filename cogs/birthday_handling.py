@@ -146,17 +146,22 @@ async def checkpoint_wal():
 
 class birthday_handling(commands.Cog):
     def __init__(self, bot:commands.Bot):
-        self.bot  = bot
+        self.bot = bot
+        self.guild = None
+        self.channel = None
+        self.error_channel = None
+
+    async def cog_load(self):
+        self.guild = await self.bot.fetch_guild(guild_id)
+        self.channel = await self.guild.fetch_channel(clock_tower)
+        self.error_channel = await self.guild.fetch_channel(bot_testing)
 
 
     async def wish_sender(self, to_wish):
         try:
 
-            guild = self.bot.get_guild(guild_id) or await self.bot.fetch_guild(guild_id)
-            channel = guild.get_channel(clock_tower) or await guild.fetch_channel(clock_tower)
-
             for i in to_wish:
-                birthday_member = guild.get_member(i) or await guild.fetch_member(i)
+                birthday_member = self.guild.get_member(i) or await self.guild.fetch_member(i)
                 avatar_url = birthday_member.avatar.url
 
                 birthday_embed = discord.Embed(title=f"Happy Birthday {birthday_member.name}!",
@@ -167,7 +172,7 @@ class birthday_handling(commands.Cog):
                 birthday_image_path = images_dir / f"{birthday_image_selector}"
                 birthday_image_file = discord.File(birthday_image_path, filename=birthday_image_path.name)
                 birthday_embed.set_image(url=f"attachment://{birthday_image_file.filename}")
-                await channel.send(
+                await self.channel.send(
                     birthday_member.mention,
                     file=birthday_image_file,
                     embed=birthday_embed,
@@ -177,9 +182,7 @@ class birthday_handling(commands.Cog):
             await mark_sent(to_wish)
 
         except Exception as e:
-            guild = self.bot.get_guild(guild_id)
-            error_channel = guild.get_channel(bot_testing)
-            await error_channel.send(f"{alert_emoji} Wishing Error: \n{e}")
+            await self.error_channel.send(f"{alert_emoji} Wishing Error: \n{e}")
 
 
     async def wish_checker(self, bot: commands.Bot):
