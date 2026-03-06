@@ -58,6 +58,26 @@ class translation_commands(commands.Cog):
                     trnslted_string = translation["translatedText"]
                     detected_code = translation.get("detectedLanguageCode")
                     trnslted_romanization = translation.get("transliteratedText")
+                elif response.status == 400:
+                    async with session.post(
+                        url=f"https://translation.googleapis.com/v3/projects/{self._project_id}:translateText",
+                        headers=auth_headers,
+                        json={
+                            "contents": [message],
+                            "targetLanguageCode": "en",
+                            "mimeType": "text/plain"
+                        }
+                    ) as retry_response:
+                        if retry_response.status == 200:
+                            result = await retry_response.json()
+                            translation = result["translations"][0]
+                            trnslted_string = translation["translatedText"]
+                            detected_code = translation.get("detectedLanguageCode")
+                            trnslted_romanization = None
+                        else:
+                            error_message = await retry_response.text()
+                            await self.error_channel.send(content=f"Google Cloud Platform has raised an exception: {retry_response.status}\t{error_message}")
+                            return
                 else:
                     error_message = await response.text()
                     await self.error_channel.send(content=f"Google Cloud Platform has raised an exception: {response.status}\t{error_message}")
