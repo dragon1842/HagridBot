@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## General
+
+- Respect `.gitignore` — do not read, search, or reference any files excluded by `.gitignore`.
+
 ## Running the Bot
 
 ```bash
