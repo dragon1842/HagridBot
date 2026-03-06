@@ -13,6 +13,7 @@ venv/
 env/
 .env/
 .venv
+env.json
 
 # Database files
 *.sqlite3
