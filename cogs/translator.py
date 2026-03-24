@@ -1,4 +1,3 @@
-import asyncio
 import aiohttp
 import discord
 from discord import app_commands
@@ -6,8 +5,10 @@ from discord.ext import commands
 from dotenv import load_dotenv
 import os
 from textwrap import shorten
+import asyncio
 import google.auth
-import google.auth.transport.requests
+import google.auth.transport.urllib3
+import urllib3
 from .variables import *
 
 
@@ -31,7 +32,7 @@ class translation_commands(commands.Cog):
     async def _get_access_token(self) -> str:
         if not self._credentials.valid:
             await asyncio.get_event_loop().run_in_executor(
-                None, self._credentials.refresh, google.auth.transport.requests.Request()
+                None, self._credentials.refresh, google.auth.transport.urllib3.Request(urllib3.PoolManager())
             )
         return self._credentials.token
 
