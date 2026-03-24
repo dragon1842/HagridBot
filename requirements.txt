@@ -1,11 +1,7 @@
-discord.py
+discord
 python-dotenv
 aiosqlite
-langchain
-langchain-openai
-langchain-tavily
-asyncio
 numpy
 aiohttp
 tzdata
-google-auth
+google-auth[urllib3]

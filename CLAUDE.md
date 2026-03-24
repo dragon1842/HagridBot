@@ -15,9 +15,8 @@ python main.py
 
 Required `.env` keys:
 - `hagridbot_token` — Discord bot token
-- `OPENAI_API_KEY` — OpenRouter API key (used with deepseek-v3.2 via OpenRouter base URL)
-- `TAVILY_API_KEY` — Tavily search API key (used by the wish generator agent)
-- `gcp_translate_api_key` — Google Cloud Translation API key
+- `openrouter_api_key` — OpenRouter API key (used with deepseek-v3.2 via OpenRouter Responses API)
+- `GOOGLE_APPLICATION_CREDENTIALS` — path to a GCP service account JSON key file, used for Google Cloud Translation API v3 (ADC via `google.auth.default()`)
 
 There are no tests. Manual testing is done by running the bot and using Discord slash commands.
 
@@ -33,7 +32,7 @@ There are no tests. Manual testing is done by running the bot and using Discord 
 - `mark_sent(user_ids)` — updates `last_posted` to today's date (per user's timezone) to prevent duplicate wishes.
 - `birthday_handling` cog — runs `wish_checker` loop every 600 seconds as a background task started in `setup()`.
 
-**`cogs/wish_generator.py`** — LangChain agent (`create_agent`) using `ChatOpenAI` pointed at OpenRouter (`deepseek-v3.2`) with `TavilySearch`. Randomly picks a Harry Potter character from `magical_characters` and generates a birthday wish in that character's voice.
+**`cogs/wish_generator.py`** — `wish_creator()` async function using `aiohttp` to call the OpenRouter Responses API (`deepseek/deepseek-v3.2`) with the built-in web search plugin (`"id": "web"`). Randomly picks a Harry Potter character from `magical_characters` and generates a birthday wish in that character's voice.
 
 **`cogs/birthday_commands.py`** — `/birthday` slash command group (available to all members): `add`, `remove`, `show`, `show_nearest`, `on_date`. Uses a `confirmation_check` UI View (45s timeout) for destructive operations.
 
@@ -41,7 +40,7 @@ There are no tests. Manual testing is done by running the bot and using Discord 
 
 **`cogs/debug_commands.py`** — `/debug` slash command group (restricted to `dragon` user ID only): `force` (manually trigger wish cycle), `status` (DB info), `ping`. Also exposes `b!sync` prefix command to re-sync the slash command tree.
 
-**`cogs/translator.py`** — `/translate` command using GCP Translation API v2 via `aiohttp`. Translates any text to English and reports the source language.
+**`cogs/translator.py`** — `/translate` command using GCP Translation API v3 via `aiohttp`. Authenticates with Application Default Credentials (`google.auth.default()`), refreshing the token as needed. Translates any text to English, reports the source language, and includes a romanization field when available (falls back to a retry without transliteration if the initial request returns 400).
 
 **`cogs/help_command.py`** — `/help` command with a paginated embed UI (4 pages).
 
