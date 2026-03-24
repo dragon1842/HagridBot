@@ -4,4 +4,4 @@ aiosqlite
 numpy
 aiohttp
 tzdata
-google-auth
+google-auth[urllib3]
