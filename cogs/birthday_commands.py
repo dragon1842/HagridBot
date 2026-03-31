@@ -46,6 +46,7 @@ class timezone_choice_view(discord.ui.View):
         self.result = "specify"
         self.timezone_value = modal.timezone_value
         self.modal_interaction = modal.modal_interaction
+        self.timeout = None  # Disable timeout after modal submission
         self.stop()
 
     @discord.ui.button(label="No, use UTC", style=discord.ButtonStyle.blurple, custom_id="skip_tz")
