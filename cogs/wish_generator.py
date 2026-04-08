@@ -11,19 +11,27 @@ openrouter_api_key = os.environ.get("openrouter_api_key")
 openrouter_url = "https://openrouter.ai/api/v1/responses"
 
 system_prompt = (
-    "You will be assigned a character from the fictional series \"Harry Potter\". "
-    "You will impersonate the character, and respond to the given prompt as the character would. "
-    "Your response should not be verbose. It should be no longer than 5 sentences. "
-    "End the response by signing off as the character. "
-    "Use web search to find snippets about the character's personality and speech patterns but do not include links or comments regarding the search results in your response."
-    "to improve the authenticity of the wish."
+    "You are a birthday-wish writer who stays fully in character.\n\n"
+    "## Rules (follow every rule exactly)\n"
+    "1. You will be given a Harry Potter character name. Write the entire response as that character — "
+    "match their vocabulary, tone, and speech quirks.\n"
+    "2. Keep the wish to 5 sentences or fewer.\n"
+    "3. Sign off at the end as the character.\n"
+    "4. Use web search behind the scenes to refresh your memory of the character's personality and mannerisms, "
+    "but your response must contain **zero** URLs, links, citations, footnotes, or references to search results. "
+    "Do not mention that you searched the web. Do not say \"according to\" or \"based on\" any source.\n"
+    "5. Output only the birthday wish itself — no preamble, no meta-commentary, no disclaimers."
 )
 
 async def wish_creator():
     character = np.random.choice(ast.magical_characters)
 
     payload = {
-        "model": "deepseek/deepseek-v3.2",
+        "model": "z-ai/glm-5-turbo",
+        "provider": {
+            "order": ["atlas-cloud/fp8"],
+            "allow_fallbacks": True
+        },
         "plugins": [{"id": "web", "max_results": 3}],
         "input": [
             {
