@@ -2,12 +2,12 @@ import discord, time
 from discord import app_commands
 from discord.ext import commands
 from .birthday_handling import *
-from .variables import *
+from . import common_assets as ast
 
 
 def owner_check():
     async def predicate(interaction: discord.Interaction):
-        if interaction.user.id == dragon:
+        if interaction.user.id == ast.dragon:
             return True
         return False
     return app_commands.check(predicate=predicate)
@@ -21,7 +21,7 @@ class debug_commands(commands.Cog):
         self.months_list=["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 
     async def cog_load(self):
-        self.guild = await self.bot.fetch_guild(guild_id)
+        self.guild = await self.bot.fetch_guild(ast.guild_id)
     
     debug_group = app_commands.Group(name="debug", description="debugging and evaluation commands exclusive to the bot owner.")
 
@@ -35,16 +35,16 @@ class debug_commands(commands.Cog):
             end_time = time.time()
             duration = end_time - start_time
             await ctx.send(
-                f"{approve_tick_emoji} Synced {len(synced)} commands globally in {duration:.2f} seconds."
+                f"{ast.approve_tick_emoji} Synced {len(synced)} commands globally in {duration:.2f} seconds."
             )
         except discord.HTTPException as e:
-            await ctx.send(f"{alert_emoji} Error while syncing: {str(e)}")
+            await ctx.send(f"{ast.alert_emoji} Error while syncing: {str(e)}")
     
     @commands.Cog.listener()
     async def on_command_error(self, ctx: commands.Context, error: commands.CommandError):
         if isinstance(error, commands.NotOwner):
             await ctx.send(
-                f"{alert_emoji} You do not have permission to use this command."
+                f"{ast.alert_emoji} You do not have permission to use this command."
             )
         else:
             raise error
@@ -58,7 +58,7 @@ class debug_commands(commands.Cog):
         to_wish = await birthday_parser(self.bot)
         if to_wish:
             await handling_cog.wish_sender(to_wish)
-        await interaction.followup.send(f"{approve_tick_emoji} Force wish cycle completed.")
+        await interaction.followup.send(f"{ast.approve_tick_emoji} Force wish cycle completed.")
     
 
     @debug_group.command(name="status", description="[Bot owner only] Displays the nearest (registered) birthdays and the size of the database")
@@ -83,7 +83,7 @@ class debug_commands(commands.Cog):
             row = await cur.fetchone()
             if not row:
                 status_embed.add_field(name="Such empty...",
-                                       value=f"{alert_emoji} There have been no birthdays so far this year.",
+                                       value=f"{ast.alert_emoji} There have been no birthdays so far this year.",
                                        inline=False)
             else:
                 recent_user, recent_day, recent_month = row
@@ -93,9 +93,9 @@ class debug_commands(commands.Cog):
                     await db.execute("DELETE FROM birthdays WHERE user_id = ?", (recent_user,))
                     await db.commit()
                     if interaction.response.is_done():
-                        await interaction.followup.send(content=f"{alert_emoji} A member departure has occured. Run the command again.")
+                        await interaction.followup.send(content=f"{ast.alert_emoji} A member departure has occured. Run the command again.")
                     else:
-                        await interaction.response.send_message(content=f"{alert_emoji} A member departure has occured. Run the command again.")
+                        await interaction.response.send_message(content=f"{ast.alert_emoji} A member departure has occured. Run the command again.")
                     return
                 status_embed.add_field(name="Most recent birthday",
                                        value=f"{recent_user_object.mention} ({recent_user_object.name}) on {recent_day} {self.months_list[recent_month-1]}",
@@ -112,7 +112,7 @@ class debug_commands(commands.Cog):
             row =  await cur.fetchone()
             if not row:
                 status_embed.add_field(name="Such empty...",
-                                       value=f"{alert_emoji} There are no more birthdays this year.",
+                                       value=f"{ast.alert_emoji} There are no more birthdays this year.",
                                        inline=False)
             else:
                 upcoming_user, upcoming_day, upcoming_month = row
@@ -122,9 +122,9 @@ class debug_commands(commands.Cog):
                     await db.execute("DELETE FROM birthdays WHERE user_id = ?", (upcoming_user,))
                     await db.commit()
                     if interaction.response.is_done():
-                        await interaction.followup.send(content=f"{alert_emoji} A member departure has occured. Run the command again.")
+                        await interaction.followup.send(content=f"{ast.alert_emoji} A member departure has occured. Run the command again.")
                     else:
-                        await interaction.response.send_message(content=f"{alert_emoji} A member departure has occured. Run the command again.")
+                        await interaction.response.send_message(content=f"{ast.alert_emoji} A member departure has occured. Run the command again.")
                     return
                 status_embed.add_field(name="Closest upcoming birthday",
                                        value=f"{upcoming_user_object.mention} ({upcoming_user_object.name}) on {upcoming_day} {self.months_list[upcoming_month-1]}",
@@ -134,7 +134,7 @@ class debug_commands(commands.Cog):
             row = await cur.fetchall()
             if not row:
                 status_embed.add_field(name="Such empty...",
-                                       value=f"{alert_emoji} There are no birthdays stored", 
+                                       value=f"{ast.alert_emoji} There are no birthdays stored", 
                                        inline=False)
             else:
                 db_size = len(row)

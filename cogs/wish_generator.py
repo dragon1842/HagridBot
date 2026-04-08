@@ -3,7 +3,7 @@ import aiohttp
 import numpy as np
 from discord.ext import commands
 from dotenv import load_dotenv
-from .variables import magical_characters
+from . import common_assets as ast
 
 load_dotenv()
 
@@ -20,7 +20,7 @@ system_prompt = (
 )
 
 async def wish_creator():
-    character = np.random.choice(magical_characters)
+    character = np.random.choice(ast.magical_characters)
 
     payload = {
         "model": "deepseek/deepseek-v3.2",

@@ -2,7 +2,7 @@ import discord, os
 from discord.ext import commands
 from discord import app_commands
 from dotenv import load_dotenv
-import cogs.variables as var
+import cogs.common_assets as ast
 import datetime as dt
 
 
@@ -23,7 +23,7 @@ class BirthdayBot(commands.Bot):
     async def on_message(self, message: discord.Message):
         if isinstance(message.channel, discord.DMChannel):
             if not message.author.bot:
-                await message.reply(f"{var.alert_emoji} You can't use the bot here.", delete_after=5)
+                await message.reply(f"{ast.alert_emoji} You can't use the bot here.", delete_after=5)
                 pass
         else:
             await bot.process_commands(message)
@@ -35,19 +35,19 @@ bot = BirthdayBot()
 @bot.tree.error
 async def on_app_command_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
     if isinstance(error, app_commands.MissingAnyRole):
-        message = f"{var.alert_emoji} You can't execute this command."
+        message = f"{ast.alert_emoji} You can't execute this command."
     elif isinstance(error, app_commands.CommandOnCooldown):
         now_ts  = dt.datetime.now(dt.timezone.utc).timestamp()
-        message = f"{var.alert_emoji} This command is on cooldown! Try again <t:{int(now_ts+error.retry_after)}:R>."
+        message = f"{ast.alert_emoji} This command is on cooldown! Try again <t:{int(now_ts+error.retry_after)}:R>."
     elif isinstance(error, app_commands.CheckFailure):
-        message = f"{var.alert_emoji} You do not have permission to use this command."
+        message = f"{ast.alert_emoji} You do not have permission to use this command."
     elif isinstance(error, app_commands.NoPrivateMessage):
-        message  = f"{var.alert_emoji} You can't use this bot in DMs!"
+        message  = f"{ast.alert_emoji} You can't use this bot in DMs!"
     else:
         message = f"An unexpected error occured. Please alert the bot owner.\n{error}"
-        guild = bot.get_guild(var.guild_id) or await bot.fetch_guild(var.guild_id)
-        error_logging_channel = guild.get_channel(var.bot_testing) or await guild.fetch_channel(var.bot_testing)
-        await error_logging_channel.send(f"{var.alert_emoji} Error executing {interaction.command.name}:\n{error}\nUser:{interaction.user.name}")
+        guild = bot.get_guild(ast.guild_id) or await bot.fetch_guild(ast.guild_id)
+        error_logging_channel = guild.get_channel(ast.bot_testing) or await guild.fetch_channel(ast.bot_testing)
+        await error_logging_channel.send(f"{ast.alert_emoji} Error executing {interaction.command.name}:\n{error}\nUser:{interaction.user.name}")
 
     if interaction.response.is_done():
         await interaction.followup.send(message, ephemeral=True)

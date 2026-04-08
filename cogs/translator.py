@@ -9,7 +9,7 @@ import asyncio
 import google.auth
 import google.auth.transport.urllib3
 import urllib3
-from .variables import *
+from . import common_assets as ast
 
 
 load_dotenv()
@@ -23,8 +23,8 @@ class translation_commands(commands.Cog):
         self._project_id = None
 
     async def cog_load(self):
-        self.guild = await self.bot.fetch_guild(guild_id)
-        self.error_channel = await self.guild.fetch_channel(bot_testing)
+        self.guild = await self.bot.fetch_guild(ast.guild_id)
+        self.error_channel = await self.guild.fetch_channel(ast.bot_testing)
         self._credentials, self._project_id = google.auth.default(
             scopes=["https://www.googleapis.com/auth/cloud-platform"]
         )
@@ -106,7 +106,7 @@ class translation_commands(commands.Cog):
         return (trnslted_string, trnslted_lng, trnslted_romanization)
 
     @app_commands.command(name="translate", description="For the linguistically-challenged...")
-    @app_commands.checks.cooldown(rate=1, per=15, key = lambda i: i.user.id)
+    @ast.owner_bypass_cooldown(rate=1, per=15)
     @app_commands.describe(text="What you want translated to English")
     async def translate(self, interaction: discord.Interaction, text: str):
         await interaction.response.defer(ephemeral=True)
@@ -124,7 +124,7 @@ class translation_commands(commands.Cog):
         return
 
     @app_commands.command(name="twanswate", description="Twanswate your messages uwu~")
-    @app_commands.checks.cooldown(rate=1, per=15, key=lambda i:i.user.id)
+    @ast.owner_bypass_cooldown(rate=1, per=15)
     @app_commands.describe(text="Entew what you want twanswated~")
     async def twanswate(self, interaction:discord.Interaction, text:str):
         await interaction.response.defer(ephemeral=True)

@@ -25,6 +25,14 @@ magical_characters = np.array(["Albus Dumbledore", "Minerva McGonagall", "Oliver
 
 images_dir = Path(__file__).parent.parent / "images"
 images = np.array(os.listdir(str(images_dir)))
+from discord import app_commands
 from discord.ext import commands
+
+def owner_bypass_cooldown(rate, per):
+    def factory(interaction):
+        if interaction.user.id == dragon:
+            return None
+        return app_commands.Cooldown(rate, per)
+    return app_commands.checks.dynamic_cooldown(factory, key=lambda i: i.user.id)
 async def setup(bot: commands.bot):
     pass

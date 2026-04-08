@@ -4,7 +4,7 @@ from discord.ext import commands
 from zoneinfo import ZoneInfo
 import datetime as dt
 from .birthday_handling import *
-from .variables import *
+from . import common_assets as ast
 
 
 class confirmation_check(discord.ui.View):
@@ -16,13 +16,13 @@ class confirmation_check(discord.ui.View):
         self.check_message = 2
         self.stop()
 
-    @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green, custom_id="confirm", emoji=approve_tick_emoji)
+    @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green, custom_id="confirm", emoji=ast.approve_tick_emoji)
     async def on_confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer(ephemeral=True)
         self.check_message = 1
         self.stop()
 
-    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red, custom_id="reject", emoji=alert_emoji)
+    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red, custom_id="reject", emoji=ast.alert_emoji)
     async def on_cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer(ephemeral=True)
         self.check_message = 0
@@ -38,7 +38,7 @@ class timezone_choice_view(discord.ui.View):
     async def on_timeout(self):
         self.stop()
 
-    @discord.ui.button(label="Yes, specify timezone", style=discord.ButtonStyle.green, custom_id="specify_tz", emoji=approve_tick_emoji)
+    @discord.ui.button(label="Yes, specify timezone", style=discord.ButtonStyle.green, custom_id="specify_tz", emoji=ast.approve_tick_emoji)
     async def on_specify(self, interaction: discord.Interaction, button: discord.ui.Button):
         modal = timezone_modal()
         await interaction.response.send_modal(modal)
@@ -55,7 +55,7 @@ class timezone_choice_view(discord.ui.View):
         self.result = "skip"
         self.stop()
 
-    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red, custom_id="cancel_tz", emoji=alert_emoji)
+    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red, custom_id="cancel_tz", emoji=ast.alert_emoji)
     async def on_cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer(ephemeral=True)
         self.result = "cancel"
@@ -91,8 +91,8 @@ class birthday_commands(commands.Cog):
         self.months_list=["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 
     async def cog_load(self):
-        self.guild = await self.bot.fetch_guild(guild_id)
-        self.testing_channel = await self.guild.fetch_channel(bot_testing)
+        self.guild = await self.bot.fetch_guild(ast.guild_id)
+        self.testing_channel = await self.guild.fetch_channel(ast.bot_testing)
     
     
     async def month_autocomplete(self, interaction: discord.Interaction, current: str):
@@ -109,12 +109,12 @@ class birthday_commands(commands.Cog):
                 return
         elif month in [1,3,5,7,8,10,12] and 1 <=  date <= 31:
                 return
-        raise Exception(f"{alert_emoji} Invalid date format. Try again.")
+        raise Exception(f"{ast.alert_emoji} Invalid date format. Try again.")
 
     birthday_group = app_commands.Group(name="birthday", description = "the birthday commands")
 
     @birthday_group.command(name="add", description="Add your birthday to the database")
-    @app_commands.checks.cooldown(rate=1, per=15, key = lambda i: i.user.id)
+    @ast.owner_bypass_cooldown(rate=1, per=15)
     @app_commands.describe(
         day="Your birthday day (1-31)",
         month="Your birthday month (1-12)",
@@ -134,10 +134,10 @@ class birthday_commands(commands.Cog):
                     month_int = i+1
                     break
             else:
-                raise Exception(f"{alert_emoji} Month not found, enter the month properly.")
+                raise Exception(f"{ast.alert_emoji} Month not found, enter the month properly.")
         except Exception as e:
             month_list_error=discord.Embed(title="Well, that didn't work.",
-                description = f"{alert_emoji} {e}",
+                description = f"{ast.alert_emoji} {e}",
                 colour=discord.Colour.red())
             await interaction.followup.send(embed=month_list_error)
             return
@@ -146,7 +146,7 @@ class birthday_commands(commands.Cog):
             await self.month_checker(date=day, month=month_int)
         except Exception as e:
             month_check_error=discord.Embed(title="Well, that didn't work.",
-                            description = f"{alert_emoji} {e}",
+                            description = f"{ast.alert_emoji} {e}",
                             colour=discord.Colour.red())
             await interaction.followup.send(embed=month_check_error)
             return
@@ -167,14 +167,14 @@ class birthday_commands(commands.Cog):
 
         if tz_view.result is None:
             timed_out_embed = discord.Embed(title="Too slow!",
-                description=f"{alert_emoji} Interaction timed out. Please try again.",
+                description=f"{ast.alert_emoji} Interaction timed out. Please try again.",
                 colour=discord.Colour.red())
             await interaction.edit_original_response(embed=timed_out_embed, view=None)
             return
 
         if tz_view.result == "cancel":
             cancelled_addition_embed = discord.Embed(title="Someone's indecisive!",
-                description=f"{alert_emoji} Entry addition cancelled.",
+                description=f"{ast.alert_emoji} Entry addition cancelled.",
                 colour=discord.Colour.red())
             await interaction.edit_original_response(embed=cancelled_addition_embed, view=None)
             return
@@ -187,7 +187,7 @@ class birthday_commands(commands.Cog):
             try:
                 ZoneInfo(timezone)
             except Exception:
-                invalid_timezone_embed = discord.Embed(title=f"{alert_emoji} That's not a timezone...",
+                invalid_timezone_embed = discord.Embed(title=f"{ast.alert_emoji} That's not a timezone...",
                     description="Invalid timezone. Please try again with a valid IANA timezone code.\n"
                     "You can find your IANA timezone code in the 'Timezone' section at https://webbrowsertools.com/timezone/.",
                     colour=discord.Colour.red())
@@ -197,7 +197,7 @@ class birthday_commands(commands.Cog):
         # Step 2: Final confirmation
         view = confirmation_check()
         now_ts = dt.datetime.now(dt.timezone.utc).timestamp()
-        confirmation_embed = discord.Embed(title=f"{alert_emoji} Are you sure?",
+        confirmation_embed = discord.Embed(title=f"{ast.alert_emoji} Are you sure?",
             description=f"You are attempting to add a birthday entry for yourself with date: **{day} {month}** in the **{timezone}** timezone. Proceed?\n"
             f"-# This interaction will time out <t:{int(now_ts+45)}:R>",
             colour=interaction.user.colour)
@@ -206,14 +206,14 @@ class birthday_commands(commands.Cog):
 
         if view.check_message == 2:
             timed_out_embed = discord.Embed(title="Too slow!",
-                description=f"{alert_emoji} Interaction timed out. Please try again.",
+                description=f"{ast.alert_emoji} Interaction timed out. Please try again.",
                 colour=discord.Colour.red())
             await interaction.edit_original_response(embed=timed_out_embed, view=None)
             return
 
         if view.check_message == 0:
             cancelled_addition_embed = discord.Embed(title="Someone's indecisive!",
-                description=f"{alert_emoji} Entry addition cancelled.",
+                description=f"{ast.alert_emoji} Entry addition cancelled.",
                 colour=discord.Colour.red())
             await interaction.edit_original_response(embed=cancelled_addition_embed, view=None)
             return
@@ -224,7 +224,7 @@ class birthday_commands(commands.Cog):
                 row = await cur.fetchone()
             if row:
                 existing_birthday_embed = discord.Embed(title="There's something in the way...",
-                    description=f"{alert_emoji} {user.mention} already has a birthday entry. Use /birthday show to view.",
+                    description=f"{ast.alert_emoji} {user.mention} already has a birthday entry. Use /birthday show to view.",
                     colour=discord.Colour.red())
                 await interaction.edit_original_response(embed=existing_birthday_embed, view=None)
                 return
@@ -236,18 +236,18 @@ class birthday_commands(commands.Cog):
                     )
                 await db.commit()
                 add_success_embed  = discord.Embed(title="Oh look! It worked!",
-                    description=f"{approve_tick_emoji} Added birthday for {user.mention} on {day} {month} in the {timezone} timezone.",
+                    description=f"{ast.approve_tick_emoji} Added birthday for {user.mention} on {day} {month} in the {timezone} timezone.",
                     colour=discord.Colour.green())
                 await interaction.edit_original_response(embed=add_success_embed, view=None)
             except Exception as e:
                 entry_error_embed=discord.Embed(title="Well, that didn't work.",
-                    description=f"{alert_emoji} Error entering data, please check for mistakes and try again.\n{e}",
+                    description=f"{ast.alert_emoji} Error entering data, please check for mistakes and try again.\n{e}",
                     colour=discord.Colour.red())
                 await interaction.edit_original_response(embed=entry_error_embed, view=None)
 
 
     @birthday_group.command(name="remove", description="Remove your birthday from the database")
-    @app_commands.checks.cooldown(rate=1, per=15, key = lambda i: i.user.id)
+    @ast.owner_bypass_cooldown(rate=1, per=15)
     async def remove_birthday(
         self,
         interaction: discord.Interaction
@@ -256,7 +256,7 @@ class birthday_commands(commands.Cog):
         view = confirmation_check()
         now_ts  = dt.datetime.now(dt.timezone.utc).timestamp()
         check_embed = discord.Embed(title="Are you sure?",
-            description=f"{alert_emoji} You are attempting to delete the birthday entry for yourself. Proceed?\n"
+            description=f"{ast.alert_emoji} You are attempting to delete the birthday entry for yourself. Proceed?\n"
             f"-# This interaction will time out <t:{int(now_ts+45)}:R>", 
             colour=interaction.user.colour)
         await interaction.followup.send(embed=check_embed, view=view)
@@ -264,14 +264,14 @@ class birthday_commands(commands.Cog):
 
         if view.check_message == 2:
             timeout_embed = discord.Embed(title="Too slow!",
-            description=f"{alert_emoji} Interaction timed out!", 
+            description=f"{ast.alert_emoji} Interaction timed out!", 
             colour=discord.Colour.red())
             await interaction.edit_original_response(embed=timeout_embed, view=None)
             return
 
         if view.check_message == 0:
             cancel_embed = discord.Embed(title="Someone's Indecisive!",
-            description=f"{alert_emoji} Entry deletion cancelled.", 
+            description=f"{ast.alert_emoji} Entry deletion cancelled.", 
             colour=discord.Colour.red())
             await interaction.edit_original_response(embed=cancel_embed, view=None)
             return
@@ -283,20 +283,20 @@ class birthday_commands(commands.Cog):
                 row = await cur.fetchone()
             if not row:
                 no_birthday_embed = discord.Embed(title="Such empty...",
-                    description=f"{alert_emoji} {user.mention} doesn't have a birthday entry.", 
+                    description=f"{ast.alert_emoji} {user.mention} doesn't have a birthday entry.", 
                     colour=discord.Colour.red())
                 await interaction.edit_original_response(embed=no_birthday_embed, view=None)
                 return
             await db.execute("DELETE FROM birthdays WHERE user_id = ?", (user.id,))
             await db.commit()
             removal_success_embed = discord.Embed(title="Oh look! It worked!",
-                description=f"{approve_tick_emoji} Removed birthday entry for {user.mention}.", 
+                description=f"{ast.approve_tick_emoji} Removed birthday entry for {user.mention}.", 
                 colour=discord.Colour.green())
             await interaction.edit_original_response(embed=removal_success_embed, view=None)
 
 
     @birthday_group.command(name="show", description="Display a user's birthday information")
-    @app_commands.checks.cooldown(rate=1, per=15, key = lambda i: i.user.id)
+    @ast.owner_bypass_cooldown(rate=1, per=15)
     @app_commands.describe(user="Select a user or provide their ID")
     async def show_birthday(
         self,
@@ -312,7 +312,7 @@ class birthday_commands(commands.Cog):
             row  = await cur.fetchone()
             if row is None:
                 entry_not_found_embed = discord.Embed(title="Such empty...",
-                description=f"{alert_emoji} {user.mention} does not have a birthday entry.", 
+                description=f"{ast.alert_emoji} {user.mention} does not have a birthday entry.", 
                 colour=discord.Colour.red())
                 await interaction.followup.send(embed=entry_not_found_embed)
                 return
@@ -326,7 +326,7 @@ class birthday_commands(commands.Cog):
     
 
     @birthday_group.command(name="show_nearest", description="Displays the nearest birthdays")
-    @app_commands.checks.cooldown(rate=1, per=15, key = lambda i: i.user.id)
+    @ast.owner_bypass_cooldown(rate=1, per=15)
     async def nearest_birthdays(self, interaction: discord.Interaction):
         await interaction.response.defer()
         db = await init_db()
@@ -347,7 +347,7 @@ class birthday_commands(commands.Cog):
             row = await cur.fetchone()
             if not row:
                 status_embed.add_field(name="Such empty...",
-                                       value=f"{alert_emoji} There have been no birthdays so far this year.",
+                                       value=f"{ast.alert_emoji} There have been no birthdays so far this year.",
                                        inline=False)
             else:
                 recent_user, recent_day, recent_month = row
@@ -357,9 +357,9 @@ class birthday_commands(commands.Cog):
                     await db.execute("DELETE FROM birthdays WHERE user_id = ?", (recent_user,))
                     await db.commit()
                     if interaction.response.is_done():
-                        await interaction.followup.send(content=f"{alert_emoji} A member departure has occured. Run the command again.")
+                        await interaction.followup.send(content=f"{ast.alert_emoji} A member departure has occured. Run the command again.")
                     else:
-                        await interaction.response.send_message(content=f"{alert_emoji} A member departure has occured. Run the command again.")
+                        await interaction.response.send_message(content=f"{ast.alert_emoji} A member departure has occured. Run the command again.")
                     return
                 status_embed.add_field(name="Most recent birthday",
                                        value=f"{recent_user_object.mention} ({recent_user_object.name}) on {recent_day} {self.months_list[recent_month-1]}",
@@ -376,7 +376,7 @@ class birthday_commands(commands.Cog):
             row =  await cur.fetchone()
             if not row:
                 status_embed.add_field(name="Such empty...",
-                                       value=f"{alert_emoji} There are no more birthdays this year.",
+                                       value=f"{ast.alert_emoji} There are no more birthdays this year.",
                                        inline=False)
             else:
                 upcoming_user, upcoming_day, upcoming_month = row
@@ -386,9 +386,9 @@ class birthday_commands(commands.Cog):
                     await db.execute("DELETE FROM birthdays WHERE user_id = ?", (upcoming_user,))
                     await db.commit()
                     if interaction.response.is_done():
-                        await interaction.followup.send(content=f"{alert_emoji} A member departure has occured. Run the command again.")
+                        await interaction.followup.send(content=f"{ast.alert_emoji} A member departure has occured. Run the command again.")
                     else:
-                        await interaction.response.send_message(content=f"{alert_emoji} A member departure has occured. Run the command again.")
+                        await interaction.response.send_message(content=f"{ast.alert_emoji} A member departure has occured. Run the command again.")
                     return
                 status_embed.add_field(name="Nearest upcoming birthday",
                                        value=f"{upcoming_user_object.mention} ({upcoming_user_object.name}) on {upcoming_day} {self.months_list[upcoming_month-1]}",
@@ -397,7 +397,7 @@ class birthday_commands(commands.Cog):
     
 
     @birthday_group.command(name="on_date", description="Tells you whose birthday is on a given date")
-    @app_commands.checks.cooldown(rate=1, per=15, key = lambda i: i.user.id)
+    @ast.owner_bypass_cooldown(rate=1, per=15)
     @app_commands.describe(
         month = "The month, this should be obvious.",
         day = "Really?")
@@ -411,10 +411,10 @@ class birthday_commands(commands.Cog):
                     month_int = i+1
                     break
             else:
-                raise Exception(f"{alert_emoji} Month not found, enter the month properly.")
+                raise Exception(f"{ast.alert_emoji} Month not found, enter the month properly.")
         except Exception as e:
             month_list_error=discord.Embed(title="Well, that didn't work.",
-                description = f"{alert_emoji} {e}", 
+                description = f"{ast.alert_emoji} {e}", 
                 colour=discord.Colour.red())
             await interaction.followup.send(embed=month_list_error)
             return
@@ -423,7 +423,7 @@ class birthday_commands(commands.Cog):
             await self.month_checker(date=day, month=month_int)
         except Exception as e:
             month_check_error=discord.Embed(title="Well, that didn't work.", 
-                            description = f"{alert_emoji} {e}", 
+                            description = f"{ast.alert_emoji} {e}", 
                             colour=discord.Colour.red())
             await interaction.followup.send(embed=month_check_error)
             return
@@ -433,7 +433,7 @@ class birthday_commands(commands.Cog):
             rows = await cur.fetchall()
         
         if len(rows) == 0:
-            empty_date = discord.Embed(title="Such empty...", description=f"{alert_emoji} There are no birthdays on {day} {month}.", colour=discord.Colour.red())
+            empty_date = discord.Embed(title="Such empty...", description=f"{ast.alert_emoji} There are no birthdays on {day} {month}.", colour=discord.Colour.red())
             await interaction.followup.send(embed=empty_date)
             return
         

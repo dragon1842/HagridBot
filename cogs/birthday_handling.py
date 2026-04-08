@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 import numpy as np
 from zoneinfo import ZoneInfo
 from .wish_generator import wish_creator
-from .variables import *
+from . import common_assets as ast
 
 
 db_path = "bot.db"
@@ -40,7 +40,7 @@ async def birthday_parser(bot: discord.Client) -> list[int]:
     if db is None:
         db = await init_db()
 
-    guild = bot.get_guild(guild_id) or await bot.fetch_guild(guild_id)
+    guild = bot.get_guild(ast.guild_id) or await bot.fetch_guild(ast.guild_id)
     utc_now = datetime.now(timezone.utc)
 
     tzs: list[str] = []
@@ -152,9 +152,9 @@ class birthday_handling(commands.Cog):
         self.error_channel = None
 
     async def cog_load(self):
-        self.guild = await self.bot.fetch_guild(guild_id)
-        self.channel = await self.guild.fetch_channel(clock_tower)
-        self.error_channel = await self.guild.fetch_channel(bot_testing)
+        self.guild = await self.bot.fetch_guild(ast.guild_id)
+        self.channel = await self.guild.fetch_channel(ast.clock_tower)
+        self.error_channel = await self.guild.fetch_channel(ast.bot_testing)
 
 
     async def wish_sender(self, to_wish):
@@ -168,8 +168,8 @@ class birthday_handling(commands.Cog):
                     description=await wish_creator(),
                     colour=birthday_member.colour)
                 birthday_embed.set_thumbnail(url=avatar_url)
-                birthday_image_selector = np.random.choice(images)
-                birthday_image_path = images_dir / f"{birthday_image_selector}"
+                birthday_image_selector = np.random.choice(ast.images)
+                birthday_image_path = ast.images_dir / f"{birthday_image_selector}"
                 birthday_image_file = discord.File(birthday_image_path, filename=birthday_image_path.name)
                 birthday_embed.set_image(url=f"attachment://{birthday_image_file.filename}")
                 await self.channel.send(
@@ -182,7 +182,7 @@ class birthday_handling(commands.Cog):
             await mark_sent(to_wish)
 
         except Exception as e:
-            await self.error_channel.send(f"{alert_emoji} Wishing Error: \n{e}")
+            await self.error_channel.send(f"{ast.alert_emoji} Wishing Error: \n{e}")
 
 
     async def wish_checker(self, bot: commands.Bot):
