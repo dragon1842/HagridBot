@@ -4,6 +4,7 @@ from pathlib import Path
 
 bot_testing = 1068409137605656676
 clock_tower = 825789506019000320
+great_hall = 1510350950882218245
 
 guild_id = 524552788932558848
 
