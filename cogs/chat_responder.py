@@ -1,4 +1,5 @@
 import os
+import re
 import asyncio
 import aiohttp
 from collections import defaultdict, deque
@@ -22,6 +23,20 @@ system_prompt = (
     "Keep replies concise — 1 to 2 sentences at most. Respond only in plain text with casual "
     "punctuation — no markdown formatting and no links."
 )
+
+_CODE_BLOCK = re.compile(r"```[^\n]*\n?(.*?)```", re.DOTALL)
+_IMAGE = re.compile(r"!\[[^\]]*\]\([^)]+\)")
+_LINK = re.compile(r"\[([^\]]+)\]\([^)]+\)")
+_BARE_URL = re.compile(r"https?://\S+")
+_INLINE_CODE = re.compile(r"`([^`]+)`")
+_BOLD = re.compile(r"\*\*([^*]+)\*\*|__([^_]+)__")
+_ITALIC = re.compile(r"(?<!\*)\*([^*\n]+)\*(?!\*)|(?<!_)_([^_\n]+)_(?!_)")
+_STRIKE = re.compile(r"~~([^~]+)~~")
+_HEADER = re.compile(r"^#{1,6}\s+", re.MULTILINE)
+_BLOCKQUOTE = re.compile(r"^>\s?", re.MULTILINE)
+_LIST_ITEM = re.compile(r"^[ \t]*(?:[-*+]\s+|\d+\.\s+)", re.MULTILINE)
+_HR = re.compile(r"^(?:-{3,}|\*{3,}|_{3,})\s*$", re.MULTILINE)
+_EXTRA_NEWLINES = re.compile(r"\n{3,}")
 
 
 async def chat_completion(history: list[dict], user_message: str) -> str:
@@ -51,6 +66,20 @@ async def chat_completion(history: list[dict], user_message: str) -> str:
                 break
         if text:
             break
+
+    text = _CODE_BLOCK.sub(r"\1", text)
+    text = _IMAGE.sub("", text)
+    text = _LINK.sub("", text)
+    text = _BARE_URL.sub("", text)
+    text = _INLINE_CODE.sub(r"\1", text)
+    text = _BOLD.sub(lambda m: m.group(1) or m.group(2), text)
+    text = _ITALIC.sub(lambda m: m.group(1) or m.group(2), text)
+    text = _STRIKE.sub(r"\1", text)
+    text = _HEADER.sub("", text)
+    text = _BLOCKQUOTE.sub("", text)
+    text = _LIST_ITEM.sub("", text)
+    text = _HR.sub("", text)
+    text = _EXTRA_NEWLINES.sub("\n\n", text)
     return text.strip()
 
 
