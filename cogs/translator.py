@@ -1,14 +1,12 @@
-import aiohttp
 import discord
 from discord import app_commands
 from discord.ext import commands
 from dotenv import load_dotenv
 import os
 from textwrap import shorten
-import asyncio
 import google.auth
-import google.auth.transport.urllib3
-import urllib3
+from google.cloud import translate_v3 as translate
+from google.api_core import exceptions as gcp_exceptions
 from . import common_assets as ast
 
 
@@ -19,103 +17,74 @@ class translation_commands(commands.Cog):
         self.bot = bot
         self.guild = None
         self.error_channel = None
-        self._credentials = None
-        self._project_id = None
+        self._client = None
+        self._parent = None
 
     async def cog_load(self):
         self.guild = await self.bot.fetch_guild(ast.guild_id)
         self.error_channel = await self.guild.fetch_channel(ast.bot_testing)
-        self._credentials, self._project_id = google.auth.default(
-            scopes=["https://www.googleapis.com/auth/cloud-platform"]
-        )
+        self._client = translate.TranslationServiceAsyncClient()
+        _, project_id = google.auth.default()
+        self._parent = f"projects/{project_id}/locations/global"
 
-    async def _get_access_token(self) -> str:
-        if not self._credentials.valid:
-            await asyncio.get_event_loop().run_in_executor(
-                None, self._credentials.refresh, google.auth.transport.urllib3.Request(urllib3.PoolManager())
-            )
-        return self._credentials.token
+    async def cog_unload(self):
+        await self._client.transport.close()
 
     async def translate_message(self, message: str):
-        token = await self._get_access_token()
-        auth_headers = {
-            "Authorization": f"Bearer {token}",
-            "Content-Type": "application/json"
+        base = {
+            "parent": self._parent,
+            "contents": [message],
+            "target_language_code": "en",
+            "mime_type": "text/plain",
         }
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
-                url=f"https://translation.googleapis.com/v3/projects/{self._project_id}:translateText",
-                headers=auth_headers,
-                json={
-                    "contents": [message],
-                    "targetLanguageCode": "en",
-                    "mimeType": "text/plain",
-                    "transliterationConfig": {"enableTransliteration": True}
-                }
-            ) as response:
-                if response.status == 200:
-                    result = await response.json()
-                    translation = result["translations"][0]
-                    trnslted_string = translation["translatedText"]
-                    detected_code = translation.get("detectedLanguageCode")
-                    trnslted_romanization = translation.get("transliteratedText")
-                elif response.status == 400:
-                    async with session.post(
-                        url=f"https://translation.googleapis.com/v3/projects/{self._project_id}:translateText",
-                        headers=auth_headers,
-                        json={
-                            "contents": [message],
-                            "targetLanguageCode": "en",
-                            "mimeType": "text/plain"
-                        }
-                    ) as retry_response:
-                        if retry_response.status == 200:
-                            result = await retry_response.json()
-                            translation = result["translations"][0]
-                            trnslted_string = translation["translatedText"]
-                            detected_code = translation.get("detectedLanguageCode")
-                            trnslted_romanization = None
-                        else:
-                            error_message = await retry_response.text()
-                            await self.error_channel.send(content=f"Google Cloud Platform has raised an exception: {retry_response.status}\t{error_message}")
-                            return
-                else:
-                    error_message = await response.text()
-                    await self.error_channel.send(content=f"Google Cloud Platform has raised an exception: {response.status}\t{error_message}")
-                    return
+        try:
+            try:
+                response = await self._client.translate_text(
+                    request=translate.TranslateTextRequest(
+                        **base,
+                        transliteration_config=translate.TransliterationConfig(
+                            enable_transliteration=True
+                        ),
+                    )
+                )
+            except gcp_exceptions.InvalidArgument:
+                response = await self._client.translate_text(
+                    request=translate.TranslateTextRequest(**base)
+                )
 
-            async with session.get(
-                url=f"https://translation.googleapis.com/v3/projects/{self._project_id}/supportedLanguages",
-                headers=auth_headers,
-                params={"displayLanguageCode": "en"}
-            ) as response:
-                if response.status == 200:
-                    lngs_result = await response.json()
-                    lngs_list = lngs_result.get("languages", [])
-                    for i in lngs_list:
-                        if i.get("languageCode") == detected_code:
-                            trnslted_lng = i.get("displayName")
-                            break
-                    else:
-                        trnslted_lng = None
-                else:
-                    error_message = await response.text()
-                    await self.error_channel.send(content=f"Google Cloud Platform has raised an exception: {response.status}\t{error_message}")
-                    return
+            translation = response.translations[0]
+            trnslted_string = translation.translated_text
+            detected_code = translation.detected_language_code
 
-        return (trnslted_string, trnslted_lng, trnslted_romanization)
+            langs = await self._client.get_supported_languages(
+                parent=self._parent, display_language_code="en"
+            )
+            trnslted_lng = None
+            for lang in langs.languages:
+                if lang.language_code == detected_code:
+                    trnslted_lng = lang.display_name
+                    break
+        except gcp_exceptions.GoogleAPICallError as exc:
+            await self.error_channel.send(
+                content=f"Google Cloud Platform has raised an exception: {exc.code}\t{exc.message}"
+            )
+            return
+
+        return (trnslted_string, trnslted_lng)
 
     @app_commands.command(name="translate", description="For the linguistically-challenged...")
     @ast.owner_bypass_cooldown(rate=1, per=15)
     @app_commands.describe(text="What you want translated to English")
     async def translate(self, interaction: discord.Interaction, text: str):
         await interaction.response.defer(ephemeral=True)
-        translated_result, initial_language, romanization = await self.translate_message(shorten(text=text, width=512, placeholder="..."))
+        result = await self.translate_message(shorten(text=text, width=512, placeholder="..."))
+        if result is None:
+            await interaction.followup.send(content="Something went wrong while translating. The professors have been notified.")
+            return
+        translated_result, initial_language = result
         translate_embed = discord.Embed(colour=interaction.user.colour)
         translate_embed.add_field(name="Initial message:", value=text, inline=False)
         translate_embed.add_field(name="Translated message:", value=translated_result, inline=False)
-        if romanization:
-            translate_embed.add_field(name="Romanization:", value=romanization, inline=False)
         if initial_language is None:
             translate_embed.set_footer(text="Source language could not be identified")
         else:

@@ -1,0 +1,44 @@
+import os
+from dotenv import load_dotenv
+from langchain.agents import create_agent
+from langchain_openai import ChatOpenAI
+from langchain_tavily import TavilySearch
+
+load_dotenv()
+
+openrouter_api_key = os.environ["openrouter_api_key"]
+tavily_api_key = os.environ["tavily_api_key"]
+
+OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
+
+CHAT_MODEL = "z-ai/glm-5-turbo"
+
+web_search = TavilySearch(
+    name="web_search",
+    max_results=3,
+    include_answer="advanced",
+    tavily_api_key=tavily_api_key,
+)
+
+
+def make_chat(model: str = CHAT_MODEL, **kwargs) -> ChatOpenAI:
+
+    return ChatOpenAI(
+        model=model,
+        base_url=OPENROUTER_BASE_URL,
+        api_key=openrouter_api_key,
+        **kwargs,
+    )
+
+
+def build_agent(system_prompt: str, model: str = CHAT_MODEL, **chat_kwargs):
+
+    return create_agent(
+        make_chat(model, **chat_kwargs),
+        tools=[web_search],
+        system_prompt=system_prompt,
+    )
+
+
+async def setup(bot):
+    pass
