@@ -2,6 +2,9 @@ discord
 python-dotenv
 aiosqlite
 numpy
-aiohttp
 tzdata
-google-auth[urllib3]
+google-auth
+google-cloud-translate
+langchain
+langchain-openai
+langchain-tavily
