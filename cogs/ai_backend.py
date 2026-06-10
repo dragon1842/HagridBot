@@ -11,7 +11,7 @@ tavily_api_key = os.environ["tavily_api_key"]
 
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 
-CHAT_MODEL = "z-ai/glm-5-turbo"
+CHAT_MODEL = "minimax/minimax-m3"
 
 web_search = TavilySearch(
     name="web_search",
