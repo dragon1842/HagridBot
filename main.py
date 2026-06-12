@@ -7,7 +7,9 @@ import datetime as dt
 
 
 load_dotenv()
-intents = discord.Intents.all()
+intents = discord.Intents.default()
+intents.message_content = True
+intents.members = True
 
 
 class BirthdayBot(commands.Bot):
