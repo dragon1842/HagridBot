@@ -1,15 +1,13 @@
 import os
 from dotenv import load_dotenv
 from langchain.agents import create_agent
-from langchain_openai import ChatOpenAI
+from langchain_openrouter import ChatOpenRouter
 from langchain_tavily import TavilySearch
 
 load_dotenv()
 
 openrouter_api_key = os.environ["openrouter_api_key"]
 tavily_api_key = os.environ["tavily_api_key"]
-
-OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 
 CHAT_MODEL = "minimax/minimax-m3"
 
@@ -21,12 +19,14 @@ web_search = TavilySearch(
 )
 
 
-def make_chat(model: str = CHAT_MODEL, **kwargs) -> ChatOpenAI:
+def make_chat(model: str = CHAT_MODEL, **kwargs) -> ChatOpenRouter:
 
-    return ChatOpenAI(
+    return ChatOpenRouter(
         model=model,
-        base_url=OPENROUTER_BASE_URL,
-        api_key=openrouter_api_key,
+        api_key=openrouter_api_key, 
+        openrouter_provider=
+        {"order" : ["Cerebras"],
+         "allow_fallbacks" : True},
         **kwargs,
     )
 

@@ -4,7 +4,7 @@ from langchain_core.messages import HumanMessage
 from . import common_assets as ast
 from . import ai_backend
 
-WISH_MODEL = "z-ai/glm-5-turbo"
+WISH_MODEL = "minimax/minimax-m3"
 
 system_prompt = (
     "You are a birthday-wish writer who stays fully in character.\n\n"

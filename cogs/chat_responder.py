@@ -25,7 +25,10 @@ class ChatResponder(commands.Cog):
         self.bot = bot
         self.histories: dict[int, deque] = defaultdict(lambda: deque(maxlen=HISTORY_MAX))
         self.locks: dict[int, asyncio.Lock] = defaultdict(asyncio.Lock)
-        self.agent = ai_backend.build_agent(system_prompt)
+        self.agent = ai_backend.build_agent(
+            system_prompt = system_prompt, 
+            model = "openai/gpt-oss-120b:nitro"
+        )
 
     async def chat_completion(self, history: list, user_message: str) -> str:
         result = await self.agent.ainvoke(

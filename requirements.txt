@@ -6,5 +6,5 @@ tzdata
 google-auth
 google-cloud-translate
 langchain
-langchain-openai
+langchain-openrouter
 langchain-tavily
