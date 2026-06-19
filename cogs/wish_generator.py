@@ -20,11 +20,9 @@ system_prompt = (
     "5. Output only the birthday wish itself — no preamble, no meta-commentary, no disclaimers."
 )
 
-# Mirror the original OpenRouter provider routing (fp8 provider, allow fallbacks).
 _agent = ai_backend.build_agent(
     system_prompt,
     WISH_MODEL,
-    extra_body={"provider": {"order": ["atlas-cloud/fp8"], "allow_fallbacks": True}},
 )
 
 
