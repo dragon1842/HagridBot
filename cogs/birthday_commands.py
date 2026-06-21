@@ -151,9 +151,20 @@ class birthday_commands(commands.Cog):
             await interaction.followup.send(embed=month_check_error)
             return
 
+
         user = interaction.user
 
-        # Step 1: Ask if user wants to specify a timezone
+
+        for i in ast.blacklist:
+            if user.id == i:
+                blacklist_error=discord.Embed(
+                title="Well, that didn't work.",
+                description=f"You know why... or not idk.",
+                colour=discord.Colour.red())
+                await interaction.followup.send(embed=blacklist_error, ephemeral=True)
+                return
+
+            
         tz_view = timezone_choice_view()
         now_ts = dt.datetime.now(dt.timezone.utc).timestamp()
         tz_choice_embed = discord.Embed(title="Would you like to specify a timezone?",
@@ -194,7 +205,6 @@ class birthday_commands(commands.Cog):
                 await interaction.edit_original_response(embed=invalid_timezone_embed, view=None)
                 return
 
-        # Step 2: Final confirmation
         view = confirmation_check()
         now_ts = dt.datetime.now(dt.timezone.utc).timestamp()
         confirmation_embed = discord.Embed(title=f"{ast.alert_emoji} Are you sure?",
