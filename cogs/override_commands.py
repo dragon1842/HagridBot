@@ -46,7 +46,7 @@ class timezone_choice_view(discord.ui.View):
         self.result = "specify"
         self.timezone_value = modal.timezone_value
         self.modal_interaction = modal.modal_interaction
-        self.timeout = None  # Disable timeout after modal submission
+        self.timeout = None
         self.stop()
 
     @discord.ui.button(label="No, use UTC", style=discord.ButtonStyle.blurple, custom_id="skip_tz")
@@ -156,7 +156,7 @@ class override_commands(commands.Cog):
             await interaction.followup.send(embed=month_check_error)
             return
 
-        # Step 1: Ask if admin wants to specify a timezone
+
         tz_view = timezone_choice_view()
         now_ts = dt.datetime.now(dt.timezone.utc).timestamp()
         tz_choice_embed = discord.Embed(title="Would you like to specify a timezone?",
@@ -197,7 +197,7 @@ class override_commands(commands.Cog):
                 await interaction.edit_original_response(embed=invalid_timezone_embed, view=None)
                 return
 
-        # Step 2: Final confirmation
+
         view = confirmation_check()
         now_ts = dt.datetime.now(dt.timezone.utc).timestamp()
         confirmation_embed = discord.Embed(title="Are you sure?",

@@ -32,7 +32,7 @@ class confirmation_check(discord.ui.View):
 class timezone_choice_view(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=45)
-        self.result = None  # None=timeout, "skip"=use UTC, "specify"=wants to enter tz
+        self.result = None
         self.modal_interaction = None
 
     async def on_timeout(self):
@@ -46,7 +46,7 @@ class timezone_choice_view(discord.ui.View):
         self.result = "specify"
         self.timezone_value = modal.timezone_value
         self.modal_interaction = modal.modal_interaction
-        self.timeout = None  # Disable timeout after modal submission
+        self.timeout = None
         self.stop()
 
     @discord.ui.button(label="No, use UTC", style=discord.ButtonStyle.blurple, custom_id="skip_tz")

@@ -8,8 +8,6 @@ import datetime as dt
 
 load_dotenv()
 intents = discord.Intents.default()
-intents.message_content = True
-intents.members = True
 
 
 class BirthdayBot(commands.Bot):
@@ -27,8 +25,6 @@ class BirthdayBot(commands.Bot):
             if not message.author.bot:
                 await message.reply(f"{ast.alert_emoji} You can't use the bot here.", delete_after=5)
                 pass
-        else:
-            await bot.process_commands(message)
 
 
 bot = BirthdayBot()
