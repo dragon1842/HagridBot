@@ -26,30 +26,6 @@ class debug_commands(commands.Cog):
     debug_group = app_commands.Group(name="debug", description="debugging and evaluation commands exclusive to the bot owner.")
 
 
-    @commands.command()
-    @commands.is_owner()
-    async def sync(self, ctx: commands.Context):
-        start_time = time.time()
-        try:
-            synced = await self.bot.tree.sync()
-            end_time = time.time()
-            duration = end_time - start_time
-            await ctx.send(
-                f"{ast.approve_tick_emoji} Synced {len(synced)} commands globally in {duration:.2f} seconds."
-            )
-        except discord.HTTPException as e:
-            await ctx.send(f"{ast.alert_emoji} Error while syncing: {str(e)}")
-    
-    @commands.Cog.listener()
-    async def on_command_error(self, ctx: commands.Context, error: commands.CommandError):
-        if isinstance(error, commands.NotOwner):
-            await ctx.send(
-                f"{ast.alert_emoji} You do not have permission to use this command."
-            )
-        else:
-            raise error
-
-
     @debug_group.command(name="force", description="[Bot owner only] Force a wish checking cycle to run")
     @owner_check()
     async def force_wish(self, interaction: discord.Interaction):
