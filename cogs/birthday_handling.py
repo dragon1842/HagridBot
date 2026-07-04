@@ -1,5 +1,5 @@
-import aiosqlite, discord, asyncio
-from discord.ext import commands
+import aiosqlite, discord
+from discord.ext import commands, tasks
 from datetime import datetime, timezone
 import numpy as np
 from zoneinfo import ZoneInfo
@@ -150,11 +150,16 @@ class birthday_handling(commands.Cog):
         self.guild = None
         self.channel = None
         self.error_channel = None
+        self.wish_checker.start()
 
     async def cog_load(self):
         self.guild = await self.bot.fetch_guild(ast.guild_id)
         self.channel = await self.guild.fetch_channel(ast.clock_tower)
         self.error_channel = await self.guild.fetch_channel(ast.bot_testing)
+
+
+    async def cog_unload(self):
+        self.wish_checker.cancel()
 
 
     async def wish_sender(self, to_wish):
@@ -185,25 +190,23 @@ class birthday_handling(commands.Cog):
             await self.error_channel.send(f"{ast.alert_emoji} Wishing Error: \n{e}")
 
 
-    async def wish_checker(self, bot: commands.Bot):
-        while True:
+    @tasks.loop(minutes=10)
+    async def wish_checker(self):
             await checkpoint_wal()
             try:
-                to_wish = await birthday_parser(bot)
+                to_wish = await birthday_parser(self.bot)
                 if to_wish:
                     await self.wish_sender(to_wish)
             except Exception:
                 pass
-            await asyncio.sleep(600)
+    
+
+    @wish_checker.before_loop
+    async def wait_before_check(self):
+        await self.bot.wait_until_ready()
 
 
 async def setup(bot: commands.Bot):
     await init_db()
     cog = (birthday_handling(bot))
     await bot.add_cog(cog)
-
-    async def _start_loop():
-        await bot.wait_until_ready()
-        bot.loop.create_task(cog.wish_checker(bot))
-
-    bot.loop.create_task(_start_loop())
