@@ -27,26 +27,19 @@ class introduction_message(commands.Cog):
     async def repetitive_intro_message(self):
         if self.previous_message_id is not None:
             try:
-                old_message = self.channel.fetch_message(self.previous_message_id)
+                old_message = await self.channel.fetch_message(self.previous_message_id)
                 await old_message.delete()
             except Exception as e:
-                self.error_channel.send(f"Unable to delete old introduction reminder for reason: {e}")
+                await self.error_channel.send(f"{ast.alert_emoji} Unable to delete old introduction reminder for reason: {e}")
                 return
 
-        intro_embed = discord.Embed(
-            title="Welcome, firs' years!",
-            description=f"Welcome to ther server, feel free to have a look around."
-                f"You may introduce yerselves in this channel, usin' either the template in the pinned messages or one of yer own!"
-                f"If you fancy a chat, check out your common rooms, or the <#{ast.great_hall}>!",
-            colour=discord.colour.parse_hex_number("#ff4a70")
-        )
-        intro_embed.set_footer("No ditherin' here please, move along!")
-
         try:
-            previous_message = await self.channel.send(intro_embed)
+            previous_message = await self.channel.send(content=f"Welcome to the server firs' years, feel free to have a look around.\n"
+                f"You may introduce yerselves in this channel, usin' either the template in the pinned messages or one of yer own!\n"
+                f"If you fancy a chat, check out your common rooms, or the <#{ast.great_hall}>!")
             self.previous_message_id = previous_message.id
         except Exception as e:
-            self.error_channel.send(f"Unable to send introduction reminder for reason: {e}")
+            await self.error_channel.send(f"{ast.alert_emoji} Unable to send introduction reminder for reason: {e}")
 
 
     @repetitive_intro_message.before_loop
