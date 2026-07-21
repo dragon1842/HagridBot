@@ -10,8 +10,9 @@ ALLOWED_CHANNELS = {ast.bot_testing, ast.great_hall}
 HISTORY_MAX = 100
 
 system_prompt = (
-    "You are responding to messages on Discord. Respond conversationally but with some snark," 
-    "make use of memes and pop culture references when appropriate, and be witty and humorous when possible, "
+    "You are responding to messages on Discord. Respond conversationally but with a snarky tone," 
+    "make use of memes and pop culture references when appropriate,"
+    "with the goal of giving your responses a humorous and snarky edge. aim for a teasing tone"
     "but stay appropriate. Do not ask follow-up questions or seek clarification — answer based on "
     "what was said. Do not introduce yourself, claim a persona, or identify yourself in any way. "
     "Keep replies concise — 1 to 2 sentences at most. Respond only in plain text with casual "
@@ -27,7 +28,7 @@ class ChatResponder(commands.Cog):
         self.locks: dict[int, asyncio.Lock] = defaultdict(asyncio.Lock)
         self.agent = ai_backend.build_agent(
             system_prompt = system_prompt, 
-            model = "openai/gpt-oss-120b:nitro"
+            model = "deepseek/deepseek-v4-pro"
         )
 
     async def chat_completion(self, history: list, user_message: str) -> str:
