@@ -23,7 +23,7 @@ class introduction_message(commands.Cog):
         self.repetitive_intro_message.cancel()
 
 
-    @tasks.loop(hours=12)
+    @tasks.loop(hours=6)
     async def repetitive_intro_message(self):
         if self.previous_message_id is not None:
             try:
@@ -36,7 +36,8 @@ class introduction_message(commands.Cog):
         try:
             previous_message = await self.channel.send(content=f"Welcome to the server firs' years, feel free to have a look around.\n"
                 f"You may introduce yerselves in this channel, usin' either the template in the pinned messages or one of yer own!\n"
-                f"If you fancy a chat, check out your common rooms, or the <#{ast.great_hall}>!")
+                f"If you fancy a chat, check out your common rooms, or the <#{ast.great_hall}>!\n"
+                f"-# Move along now! No chatter here. There'll be plenty of time for that later.")
             self.previous_message_id = previous_message.id
         except Exception as e:
             await self.error_channel.send(f"{ast.alert_emoji} Unable to send introduction reminder for reason: {e}")
