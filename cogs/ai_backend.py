@@ -9,7 +9,7 @@ load_dotenv()
 openrouter_api_key = os.environ["openrouter_api_key"]
 tavily_api_key = os.environ["tavily_api_key"]
 
-CHAT_MODEL = "minimax/minimax-m3"
+CHAT_MODEL = "openai/gpt-5.6-terra"
 
 web_search = TavilySearch(
     name="web_search",
