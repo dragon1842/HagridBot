@@ -9,7 +9,7 @@ load_dotenv()
 openrouter_api_key = os.environ["openrouter_api_key"]
 tavily_api_key = os.environ["tavily_api_key"]
 
-CHAT_MODEL = "minimax/minimax-m3"
+CHAT_MODEL = "openai/gpt-5.6-sol"
 
 web_search = TavilySearch(
     name="web_search",
@@ -25,7 +25,7 @@ def make_chat(model: str = CHAT_MODEL, **kwargs) -> ChatOpenRouter:
         model=model,
         api_key=openrouter_api_key, 
         openrouter_provider=
-        {"order" : ["Cerebras"],
+        {"order" : ["azure"],
          "allow_fallbacks" : True},
         **kwargs,
     )

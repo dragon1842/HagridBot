@@ -4,7 +4,6 @@ from langchain_core.messages import HumanMessage
 from . import common_assets as ast
 from . import ai_backend
 
-WISH_MODEL = "minimax/minimax-m3"
 
 system_prompt = (
     "You are a birthday-wish writer who stays fully in character.\n\n"
@@ -21,8 +20,7 @@ system_prompt = (
 )
 
 _agent = ai_backend.build_agent(
-    system_prompt,
-    WISH_MODEL,
+    system_prompt
 )
 
 
