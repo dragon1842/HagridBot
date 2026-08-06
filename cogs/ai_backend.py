@@ -13,7 +13,7 @@ CHAT_MODEL = "openai/gpt-5.6-sol"
 
 web_search = TavilySearch(
     name="web_search",
-    max_results=3,
+    max_results=10,
     include_answer="advanced",
     tavily_api_key=tavily_api_key,
 )
