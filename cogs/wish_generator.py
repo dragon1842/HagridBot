@@ -31,8 +31,6 @@ async def wish_creator():
         {"messages": [HumanMessage(f"Wish the user a happy birthday as {character}.")]}
     )
     final = result["messages"][-1]
-    model_name = final.response_metadata.get("model_name", WISH_MODEL)
-    print(f"wish generated with model {model_name}")
     return final.content.strip()
 
 
