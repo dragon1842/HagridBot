@@ -1,8 +1,12 @@
-import numpy as np
 from discord.ext import commands
-from langchain_core.messages import HumanMessage
+from dotenv import load_dotenv
+import numpy as np
+from openai import AsyncOpenAI
+import os
 from . import common_assets as ast
-from . import ai_backend
+
+
+load_dotenv()
 
 
 system_prompt = (
@@ -19,19 +23,23 @@ system_prompt = (
     "5. Output only the birthday wish itself — no preamble, no meta-commentary, no disclaimers."
 )
 
-_agent = ai_backend.build_agent(
-    system_prompt
-)
+wishing_agent = AsyncOpenAI(api_key=os.getenv("openai_api_key"))
 
 
 async def wish_creator():
     character = np.random.choice(ast.magical_characters)
 
-    result = await _agent.ainvoke(
-        {"messages": [HumanMessage(f"Wish the user a happy birthday as {character}.")]}
+    result = await wishing_agent.responses.create(
+        model="gpt-5.6-terra",
+        tools=[{"type" : "web_search"}],
+        store=False,
+        reasoning={"effort" : "xhigh"},
+        service_tier="flex",
+        instructions=system_prompt,
+        input={"role" : "user", "content" : f"Wish the user a happy birthday as {character}."}
     )
-    final = result["messages"][-1]
-    return final.content.strip()
+    wish = result.output_text.strip()
+    return wish
 
 
 async def setup(bot: commands.Bot):

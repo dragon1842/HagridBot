@@ -5,6 +5,4 @@ numpy
 tzdata
 google-auth
 google-cloud-translate
-langchain
-langchain-openrouter
-langchain-tavily
+openai
