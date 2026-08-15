@@ -9,7 +9,7 @@ from . import common_assets as ast
 load_dotenv()
 
 
-system_prompt = (
+system_prompt = str(
     "You are a birthday-wish writer who stays fully in character.\n\n"
     "## Rules (follow every rule exactly)\n"
     "1. You will be given a Harry Potter character name. Write the entire response as that character — "
@@ -36,7 +36,7 @@ async def wish_creator():
         reasoning={"effort" : "xhigh"},
         service_tier="flex",
         instructions=system_prompt,
-        input={"role" : "user", "content" : f"Wish the user a happy birthday as {character}."}
+        input=[{"role" : "user", "content" : f"Wish the user a happy birthday as {character}."}]
     )
     wish = result.output_text.strip()
     return wish
