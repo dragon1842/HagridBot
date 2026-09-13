@@ -83,8 +83,10 @@ class translation_commands(commands.Cog):
             return
         translated_result, initial_language = result
         translate_embed = discord.Embed(colour=interaction.user.colour)
-        translate_embed.add_field(name="Initial message:", value=text, inline=False)
+        translate_embed.add_field(name="Initial message:", value=shorten(text=text, width=512), inline=False)
         translate_embed.add_field(name="Translated message:", value=translated_result, inline=False)
+        if len(text) >= 512:
+            translate_embed.add_field(name="Length limitation:", value="Entered text was longer than 512 characters and has been concatenated to fit.")
         if initial_language is None:
             translate_embed.set_footer(text="Source language could not be identified")
         else:
