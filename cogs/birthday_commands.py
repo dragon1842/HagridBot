@@ -155,14 +155,15 @@ class birthday_commands(commands.Cog):
         user = interaction.user
 
 
-        for i in ast.blacklist:
-            if user.id == i:
-                blacklist_error=discord.Embed(
-                title="Well, that didn't work.",
-                description=f"You know why... or not idk.",
-                colour=discord.Colour.red())
-                await interaction.followup.send(embed=blacklist_error, ephemeral=True)
-                return
+        if len(ast.blacklist) > 0:
+            for i in ast.blacklist:
+                if user.id == i:
+                    blacklist_error=discord.Embed(
+                    title="Well, that didn't work.",
+                    description=f"You know why... or not idk.",
+                    colour=discord.Colour.red())
+                    await interaction.followup.send(embed=blacklist_error, ephemeral=True)
+                    return
 
             
         tz_view = timezone_choice_view()

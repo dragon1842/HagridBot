@@ -14,7 +14,7 @@ professors = 731429277563748412
 
 dragon = 876529458880847892
 
-blacklist  = [582846787124199425]
+blacklist  = []
 
 alert_emoji = "<a:alert:1415015206895091833>"
 approve_tick_emoji = "<a:approve_tick:1415015152427728937>"
